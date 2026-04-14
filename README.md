@@ -1,5 +1,7 @@
 # xendit-mcp
 
+[![xendit-mcp MCP server](https://glama.ai/mcp/servers/mrslbt/xendit-mcp/badges/score.svg)](https://glama.ai/mcp/servers/mrslbt/xendit-mcp)
+
 MCP server for [Xendit](https://www.xendit.co/) payment APIs.
 
 Manage invoices, send disbursements, check balances, and track transactions across Southeast Asia. One API key, one install.
