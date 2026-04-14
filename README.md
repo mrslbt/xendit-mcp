@@ -1,5 +1,6 @@
 # xendit-mcp
 
+[![MCP Badge](https://lobehub.com/badge/mcp/mrslbt-xendit-mcp)](https://lobehub.com/mcp/mrslbt-xendit-mcp)
 [![xendit-mcp MCP server](https://glama.ai/mcp/servers/mrslbt/xendit-mcp/badges/score.svg)](https://glama.ai/mcp/servers/mrslbt/xendit-mcp)
 
 MCP server for [Xendit](https://www.xendit.co/) payment APIs.
