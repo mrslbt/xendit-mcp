@@ -1,7 +1,7 @@
 {
   "name": "xendit-mcp",
-  "version": "0.1.0",
-  "description": "MCP server for Xendit payment APIs. Invoices, disbursements, balances, and transactions for Indonesia and the Philippines.",
+  "version": "0.1.1",
+  "description": "MCP server for Xendit payment APIs. Invoices, disbursements, balances, and transactions for Southeast Asia.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

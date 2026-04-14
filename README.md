@@ -2,7 +2,7 @@
 
 MCP server for [Xendit](https://www.xendit.co/) payment APIs.
 
-Manage invoices, send disbursements, check balances, and track transactions across Indonesia and the Philippines. One API key, one install.
+Manage invoices, send disbursements, check balances, and track transactions across Southeast Asia. One API key, one install.
 
 ## Install
 
