@@ -3,31 +3,29 @@
 [![MCP Badge](https://lobehub.com/badge/mcp/mrslbt-xendit-mcp)](https://lobehub.com/mcp/mrslbt-xendit-mcp)
 [![xendit-mcp MCP server](https://glama.ai/mcp/servers/mrslbt/xendit-mcp/badges/score.svg)](https://glama.ai/mcp/servers/mrslbt/xendit-mcp)
 
-MCP server for [Xendit](https://www.xendit.co/) payment APIs.
-
-Manage invoices, send disbursements, check balances, and track transactions across Southeast Asia. One API key, one install.
+Model Context Protocol server for the [Xendit](https://www.xendit.co/) payment API. Supports invoices, disbursements, balances, and transactions across Indonesia, the Philippines, Thailand, Vietnam, and Malaysia.
 
 ## Install
-
-```bash
-npx xendit-mcp
-```
-
-Or install globally:
 
 ```bash
 npm install -g xendit-mcp
 ```
 
-## Setup
+Or run on demand with `npx xendit-mcp`.
 
-1. Sign up at [Xendit Dashboard](https://dashboard.xendit.co/) (free, includes test mode)
-2. Go to Settings > API Keys and generate a key
-3. Use your test key (`xnd_development_...`) to try it out, or your live key for real transactions
+## Configuration
+
+1. Sign up at the [Xendit Dashboard](https://dashboard.xendit.co/).
+2. Go to Settings → API Keys and generate a key.
+3. Use a test key (`xnd_development_...`) for development or a live key for production.
+
+| Variable | Required | Description |
+|---|---|---|
+| `XENDIT_API_KEY` | yes | Test or live API key |
 
 ### Claude Desktop
 
-Add to your `claude_desktop_config.json`:
+Edit `claude_desktop_config.json`:
 
 ```json
 {
@@ -46,46 +44,44 @@ Add to your `claude_desktop_config.json`:
 ### Claude Code
 
 ```bash
-claude mcp add xendit -- npx -y xendit-mcp
+claude mcp add xendit -e XENDIT_API_KEY=your-api-key -- npx -y xendit-mcp
 ```
 
-Then set your environment variable:
+### Cursor
 
-```bash
-export XENDIT_API_KEY="your-api-key"
-```
+Add to `~/.cursor/mcp.json` with the same shape as Claude Desktop.
 
 ## Tools
 
 | Tool | Description |
-|------|-------------|
-| `get_balance` | Check account balance by type (CASH, HOLDING, TAX) |
-| `list_invoices` | List invoices with filters for status, date range, currency |
-| `get_invoice` | Get details of a specific invoice |
-| `create_invoice` | Create a payment invoice and get a payment link |
-| `expire_invoice` | Expire an active invoice |
-| `list_transactions` | List payments, disbursements, refunds, and fees |
-| `create_disbursement` | Send money to a bank account or e-wallet |
-| `get_disbursement` | Check disbursement status |
-| `list_disbursement_banks` | List available banks and e-wallets by country |
+|---|---|
+| `get_balance` | Account balance by type (CASH, HOLDING, TAX). |
+| `list_invoices` | List invoices filtered by status, date range, or currency. |
+| `get_invoice` | Retrieve a single invoice. |
+| `create_invoice` | Create a payment invoice and return a payment link. |
+| `expire_invoice` | Expire an active invoice. |
+| `list_transactions` | List payments, disbursements, refunds, and fees. |
+| `create_disbursement` | Send funds to a bank account or e-wallet. |
+| `get_disbursement` | Check disbursement status. |
+| `list_disbursement_banks` | List supported banks and e-wallets by country. |
 
 ## Prompts
 
 | Prompt | Description |
-|--------|-------------|
-| `check_balance` | Check your account balance |
-| `recent_payments` | Show payments received in the last N days |
-| `create_payment_link` | Create a payment link for a customer |
-| `unpaid_invoices` | List all pending invoices |
-| `send_payout` | Send money to a bank account |
-| `daily_summary` | Get today's payment activity summary |
+|---|---|
+| `check_balance` | Report account balance. |
+| `recent_payments` | Payments received in the last N days. |
+| `create_payment_link` | Generate a payment link for a customer. |
+| `unpaid_invoices` | List pending invoices. |
+| `send_payout` | Send funds to a bank account. |
+| `daily_summary` | Today's payment activity. |
 
 ## Resources
 
 | Resource | URI | Description |
-|----------|-----|-------------|
-| Supported Banks | `xendit://banks` | Common bank codes for Indonesia and the Philippines |
-| API Info | `xendit://info` | Xendit API details and rate limits |
+|---|---|---|
+| Supported Banks | `xendit://banks` | Bank codes for Indonesia and the Philippines. |
+| API Info | `xendit://info` | Xendit API details and rate limits. |
 
 ## Example queries
 
@@ -93,37 +89,22 @@ export XENDIT_API_KEY="your-api-key"
 What's my current Xendit balance?
 Saldo Xendit saya berapa?
 
-Create an invoice for Rp 500,000 for "Website design deposit"
-Buatkan invoice Rp 500.000 untuk "Deposit desain website"
+Create an invoice for Rp 500,000 for "Website design deposit".
+Buatkan invoice Rp 500.000 untuk "Deposit desain website".
 
-Show me all unpaid invoices
-Tampilkan semua invoice yang belum dibayar
+Show me all unpaid invoices.
+Tampilkan semua invoice yang belum dibayar.
 
-Send Rp 1,000,000 to Ahmad at BCA
-Kirim Rp 1.000.000 ke Ahmad di BCA
+Send Rp 1,000,000 to Ahmad at BCA.
+Kirim Rp 1.000.000 ke Ahmad di BCA.
 
-What payments came in today?
-Ada pembayaran masuk hari ini?
-
-List available banks for disbursement in the Philippines
+List available banks for disbursement in the Philippines.
 ```
 
-## Supported countries
+## Environments
 
-Xendit operates in Indonesia, the Philippines, Thailand, Vietnam, and Malaysia. This server supports all currencies available through the Xendit API (IDR, PHP, THB, VND, MYR, USD).
-
-## Test mode
-
-Xendit gives you separate test and live API keys. Use your test key (`xnd_development_...`) to try everything without moving real money. All tools work the same in test mode.
-
-## More MCPs
-
-| MCP | What it does |
-|-----|-------------|
-| [rippr](https://github.com/mrslbt/rippr) | YouTube transcript ripper for humans and AI agents |
-| [Japan UX](https://github.com/mrslbt/japan-ux-mcp) | Japanese UX rules for AI — forms, keigo, typography, trust signals |
-| [Rakuten](https://github.com/mrslbt/rakuten-mcp) | Search Rakuten's marketplace, books, and hotels |
+Xendit issues separate test and live API keys. The server makes no distinction between them; it sends requests with whichever key is configured. Test keys operate against the Xendit sandbox, so no real funds move.
 
 ## License
 
-MIT
+[MIT](LICENSE)
