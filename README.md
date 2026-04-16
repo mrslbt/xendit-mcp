@@ -116,6 +116,14 @@ Xendit operates in Indonesia, the Philippines, Thailand, Vietnam, and Malaysia. 
 
 Xendit gives you separate test and live API keys. Use your test key (`xnd_development_...`) to try everything without moving real money. All tools work the same in test mode.
 
+## More MCPs
+
+| MCP | What it does |
+|-----|-------------|
+| [rippr](https://github.com/mrslbt/rippr) | YouTube transcript ripper for humans and AI agents |
+| [Japan UX](https://github.com/mrslbt/japan-ux-mcp) | Japanese UX rules for AI — forms, keigo, typography, trust signals |
+| [Rakuten](https://github.com/mrslbt/rakuten-mcp) | Search Rakuten's marketplace, books, and hotels |
+
 ## License
 
 MIT
