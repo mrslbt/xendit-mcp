@@ -105,6 +105,10 @@ List available banks for disbursement in the Philippines.
 
 Xendit issues separate test and live API keys. The server makes no distinction between them; it sends requests with whichever key is configured. Test keys operate against the Xendit sandbox, so no real funds move.
 
+## Disclaimer
+
+This is an unofficial MCP server. Not affiliated with or endorsed by Xendit.
+
 ## License
 
 [MIT](LICENSE)
