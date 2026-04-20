@@ -1,6 +1,6 @@
 {
   "name": "xendit-mcp",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "mcpName": "io.github.mrslbt/xendit-mcp",
   "description": "MCP server for Xendit payment APIs. Invoices, disbursements, balances, and transactions for Southeast Asia.",
   "type": "module",

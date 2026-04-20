@@ -22,6 +22,8 @@ Or run on demand with `npx xendit-mcp`.
 | Variable | Required | Description |
 |---|---|---|
 | `XENDIT_API_KEY` | yes | Test or live API key |
+| `XENDIT_ENABLE_DISBURSEMENTS` | no | Set to `true` to enable disbursement tools (money-movement). Disabled by default. |
+| `XENDIT_ALLOW_LIVE` | no | Set to `true` to allow live/production keys (prefixes `xnd_production_`, `iluma_production_`, `sk_live_`). Refused by default. |
 
 ### Claude Desktop
 
@@ -61,9 +63,9 @@ Add to `~/.cursor/mcp.json` with the same shape as Claude Desktop.
 | `create_invoice` | Create a payment invoice and return a payment link. |
 | `expire_invoice` | Expire an active invoice. |
 | `list_transactions` | List payments, disbursements, refunds, and fees. |
-| `create_disbursement` | Send funds to a bank account or e-wallet. |
-| `get_disbursement` | Check disbursement status. |
-| `list_disbursement_banks` | List supported banks and e-wallets by country. |
+| `create_disbursement` | Send funds to a bank account or e-wallet. **Disabled unless `XENDIT_ENABLE_DISBURSEMENTS=true`.** |
+| `get_disbursement` | Check disbursement status. **Disabled unless `XENDIT_ENABLE_DISBURSEMENTS=true`.** |
+| `list_disbursement_banks` | List supported banks and e-wallets by country. **Disabled unless `XENDIT_ENABLE_DISBURSEMENTS=true`.** |
 
 ## Prompts
 
@@ -73,7 +75,6 @@ Add to `~/.cursor/mcp.json` with the same shape as Claude Desktop.
 | `recent_payments` | Payments received in the last N days. |
 | `create_payment_link` | Generate a payment link for a customer. |
 | `unpaid_invoices` | List pending invoices. |
-| `send_payout` | Send funds to a bank account. |
 | `daily_summary` | Today's payment activity. |
 
 ## Resources
@@ -95,6 +96,11 @@ Buatkan invoice Rp 500.000 untuk "Deposit desain website".
 Show me all unpaid invoices.
 Tampilkan semua invoice yang belum dibayar.
 
+```
+
+With `XENDIT_ENABLE_DISBURSEMENTS=true`:
+
+```
 Send Rp 1,000,000 to Ahmad at BCA.
 Kirim Rp 1.000.000 ke Ahmad di BCA.
 
@@ -103,11 +109,21 @@ List available banks for disbursement in the Philippines.
 
 ## Environments
 
-Xendit issues separate test and live API keys. The server makes no distinction between them; it sends requests with whichever key is configured. Test keys operate against the Xendit sandbox, so no real funds move.
+Xendit issues separate test and live API keys. Test keys operate against the Xendit sandbox, so no real funds move. Live keys (`xnd_production_...`, `iluma_production_...`, `sk_live_...`) operate against production.
+
+## Safety
+
+This server can move real money through the Xendit API. Key safeguards:
+
+- **Disbursement tools are disabled by default.** `create_disbursement`, `get_disbursement`, and `list_disbursement_banks` are only registered when `XENDIT_ENABLE_DISBURSEMENTS=true`. Only enable them in trusted agent contexts where tool inputs cannot be influenced by untrusted content.
+- **Live keys are refused by default.** Keys with the prefixes `xnd_production_`, `iluma_production_`, or `sk_live_` are rejected at startup unless `XENDIT_ALLOW_LIVE=true`. Always test with a development key (`xnd_development_...`) first.
+- **Idempotency.** `create_disbursement` uses your `externalId` as the `Idempotency-Key`, so retries with the same `externalId` will not create duplicate transfers. Use a fresh `externalId` for each new disbursement.
+
+Even with these gates on, review any money-moving request before approving the tool call. Treat tool inputs derived from model output as untrusted.
 
 ## Disclaimer
 
-This is an unofficial MCP server. Not affiliated with or endorsed by Xendit.
+This is an unofficial, community-built MCP server. Not affiliated with, endorsed by, or sponsored by Xendit. Xendit is a trademark of its respective owners. Use at your own risk. The author accepts no liability for funds lost through misuse, prompt injection, or bugs.
 
 ## License
 

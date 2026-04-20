@@ -16,6 +16,27 @@ function getApiKey(): string {
   return key;
 }
 
+const LIVE_KEY_PREFIXES = ["xnd_production_", "iluma_production_", "sk_live_"];
+
+function isLiveKey(key: string): boolean {
+  return LIVE_KEY_PREFIXES.some((prefix) => key.startsWith(prefix));
+}
+
+function validateMode(): void {
+  const key = process.env.XENDIT_API_KEY ?? "";
+  if (isLiveKey(key) && process.env.XENDIT_ALLOW_LIVE !== "true") {
+    throw new Error(
+      "Xendit API key appears to be a LIVE/production key. " +
+        "This MCP refuses live keys by default to prevent accidental money movement. " +
+        "Set XENDIT_ALLOW_LIVE=true to opt in, or use a development key (xnd_development_...)."
+    );
+  }
+}
+
+function isDisbursementsEnabled(): boolean {
+  return process.env.XENDIT_ENABLE_DISBURSEMENTS === "true";
+}
+
 function authHeader(): string {
   return "Basic " + Buffer.from(getApiKey() + ":").toString("base64");
 }
@@ -66,7 +87,7 @@ async function xenditRequest(
 
 const server = new McpServer({
   name: "xendit-mcp",
-  version: "0.1.0",
+  version: "0.1.3",
 });
 
 // --- Tools ---
@@ -281,86 +302,89 @@ server.tool(
   }
 );
 
-// Create disbursement
-server.tool(
-  "create_disbursement",
-  "Send money to a bank account or e-wallet. Supports Indonesian and Philippine banks.",
-  {
-    externalId: z.string().describe("Your unique reference ID"),
-    amount: z.number().positive().describe("Amount to send"),
-    bankCode: z.string().describe("Bank code (e.g., BCA, BNI, BRI, MANDIRI, BPI, BDO)"),
-    accountHolderName: z.string().describe("Recipient's name as registered with the bank"),
-    accountNumber: z.string().describe("Recipient's bank account number"),
-    description: z.string().optional().describe("Transfer description"),
-    currency: z
-      .enum(["IDR", "PHP", "THB", "VND", "MYR"])
-      .default("IDR")
-      .describe("Currency code"),
-  },
-  async ({ externalId, amount, bankCode, accountHolderName, accountNumber, description, currency }) => {
-    const body: Record<string, unknown> = {
-      external_id: externalId,
-      amount,
-      bank_code: bankCode,
-      account_holder_name: accountHolderName,
-      account_number: accountNumber,
-      currency,
-    };
-    if (description) body.description = description;
+// Disbursement tools are disabled by default because they move real money.
+// Set XENDIT_ENABLE_DISBURSEMENTS=true to opt in.
+if (isDisbursementsEnabled()) {
+  // Create disbursement
+  server.tool(
+    "create_disbursement",
+    "Send money to a bank account or e-wallet. Supports Indonesian and Philippine banks.",
+    {
+      externalId: z.string().describe("Your unique reference ID"),
+      amount: z.number().positive().describe("Amount to send"),
+      bankCode: z.string().describe("Bank code (e.g., BCA, BNI, BRI, MANDIRI, BPI, BDO)"),
+      accountHolderName: z.string().describe("Recipient's name as registered with the bank"),
+      accountNumber: z.string().describe("Recipient's bank account number"),
+      description: z.string().optional().describe("Transfer description"),
+      currency: z
+        .enum(["IDR", "PHP", "THB", "VND", "MYR"])
+        .default("IDR")
+        .describe("Currency code"),
+    },
+    async ({ externalId, amount, bankCode, accountHolderName, accountNumber, description, currency }) => {
+      const body: Record<string, unknown> = {
+        external_id: externalId,
+        amount,
+        bank_code: bankCode,
+        account_holder_name: accountHolderName,
+        account_number: accountNumber,
+        currency,
+      };
+      if (description) body.description = description;
 
-    const idempotencyKey = `${externalId}-${Date.now()}`;
-    const data = await xenditRequest("/v2/disbursements", {
-      method: "POST",
-      body,
-      headers: { "Idempotency-Key": idempotencyKey },
-    });
+      const data = await xenditRequest("/v2/disbursements", {
+        method: "POST",
+        body,
+        headers: { "Idempotency-Key": externalId },
+      });
 
-    return {
-      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-    };
-  }
-);
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+      };
+    }
+  );
 
-// Get disbursement
-server.tool(
-  "get_disbursement",
-  "Check the status of a disbursement by ID.",
-  {
-    disbursementId: z.string().describe("Xendit disbursement ID"),
-  },
-  async ({ disbursementId }) => {
-    const data = await xenditRequest(`/v2/disbursements/${disbursementId}`);
-    return {
-      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-    };
-  }
-);
+  // Get disbursement
+  server.tool(
+    "get_disbursement",
+    "Check the status of a disbursement by ID.",
+    {
+      disbursementId: z.string().describe("Xendit disbursement ID"),
+    },
+    async ({ disbursementId }) => {
+      const data = await xenditRequest(`/v2/disbursements/${disbursementId}`);
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+      };
+    }
+  );
 
-// List available banks for disbursement
-server.tool(
-  "list_disbursement_banks",
-  "List banks and e-wallets available for disbursements in a specific country.",
-  {
-    channelCategory: z
-      .enum(["BANK", "EWALLET"])
-      .optional()
-      .describe("Filter by channel type"),
-    currency: z
-      .enum(["IDR", "PHP", "THB", "VND", "MYR"])
-      .optional()
-      .describe("Filter by currency"),
-  },
-  async ({ channelCategory, currency }) => {
-    const params: Record<string, string> = {};
-    if (channelCategory) params.channel_category = channelCategory;
-    if (currency) params.currency = currency;
+  // List available banks for disbursement
+  server.tool(
+    "list_disbursement_banks",
+    "List banks and e-wallets available for disbursements in a specific country.",
+    {
+      channelCategory: z
+        .enum(["BANK", "EWALLET"])
+        .optional()
+        .describe("Filter by channel type"),
+      currency: z
+        .enum(["IDR", "PHP", "THB", "VND", "MYR"])
+        .optional()
+        .describe("Filter by currency"),
+    },
+    async ({ channelCategory, currency }) => {
+      const params: Record<string, string> = {};
+      if (channelCategory) params.channel_category = channelCategory;
+      if (currency) params.currency = currency;
 
-    const data = await xenditRequest("/available_disbursements_banks", { params });
-    return {
-      content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
-    };
-  }
-);
+      const data = await xenditRequest("/available_disbursements_banks", { params });
+      return {
+        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+      };
+    }
+  );
+}
 
 // --- Prompts ---
 
@@ -436,27 +460,6 @@ server.prompt(
         content: {
           type: "text" as const,
           text: `List all pending (unpaid) invoices from Xendit`,
-        },
-      },
-    ],
-  })
-);
-
-server.prompt(
-  "send_payout",
-  "Send money to a bank account",
-  {
-    amount: z.string().describe("Amount to send"),
-    bank: z.string().describe("Bank name or code (e.g., BCA, BNI, BPI)"),
-    recipient: z.string().describe("Recipient name"),
-  },
-  ({ amount, bank, recipient }) => ({
-    messages: [
-      {
-        role: "user" as const,
-        content: {
-          type: "text" as const,
-          text: `Send IDR ${amount} to ${recipient} at ${bank} via Xendit`,
         },
       },
     ],
@@ -558,12 +561,19 @@ server.resource(
 // --- Start ---
 
 async function main() {
+  validateMode();
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("Xendit MCP server running on stdio");
   if (!process.env.XENDIT_API_KEY) {
     console.error(
       "Warning: XENDIT_API_KEY not set. Tools will fail until configured. Get your key at https://dashboard.xendit.co/settings/developers#api-keys"
+    );
+  }
+  if (!isDisbursementsEnabled()) {
+    console.error(
+      "Note: disbursement tools are disabled. Set XENDIT_ENABLE_DISBURSEMENTS=true to enable create_disbursement, get_disbursement, and list_disbursement_banks."
     );
   }
 }
