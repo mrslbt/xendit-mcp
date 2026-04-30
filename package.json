@@ -15,7 +15,9 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm --target node18 --clean",
     "start": "node dist/index.js",
-    "dev": "tsx src/index.ts"
+    "dev": "tsx src/index.ts",
+    "test": "npm run build && SKIP_LIVE=1 XENDIT_API_KEY=xnd_development_dummy node test/integration.test.mjs",
+    "test:live": "npm run build && node test/integration.test.mjs"
   },
   "keywords": ["mcp", "xendit", "payments", "indonesia", "philippines", "fintech", "ai-agents", "invoices", "disbursements"],
   "author": {
