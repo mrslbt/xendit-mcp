@@ -18,11 +18,18 @@
     "dev": "tsx src/index.ts"
   },
   "keywords": ["mcp", "xendit", "payments", "indonesia", "philippines", "fintech", "ai-agents", "invoices", "disbursements"],
-  "author": "Marsel Bait",
+  "author": {
+    "name": "Marsel Bait",
+    "url": "https://marselbait.me"
+  },
   "license": "MIT",
+  "homepage": "https://github.com/mrslbt/xendit-mcp#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/mrslbt/xendit-mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/mrslbt/xendit-mcp/issues"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",

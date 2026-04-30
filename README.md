@@ -1,7 +1,10 @@
 # xendit-mcp
 
+[![npm version](https://img.shields.io/npm/v/xendit-mcp.svg)](https://www.npmjs.com/package/xendit-mcp)
+[![npm downloads](https://img.shields.io/npm/dm/xendit-mcp.svg)](https://www.npmjs.com/package/xendit-mcp)
 [![MCP Badge](https://lobehub.com/badge/mcp/mrslbt-xendit-mcp)](https://lobehub.com/mcp/mrslbt-xendit-mcp)
 [![xendit-mcp MCP server](https://glama.ai/mcp/servers/mrslbt/xendit-mcp/badges/score.svg)](https://glama.ai/mcp/servers/mrslbt/xendit-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Model Context Protocol server for the [Xendit](https://www.xendit.co/) payment API. Supports invoices, disbursements, balances, and transactions across Indonesia, the Philippines, Thailand, Vietnam, and Malaysia.
 
